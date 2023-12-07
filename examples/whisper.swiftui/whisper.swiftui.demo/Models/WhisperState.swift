@@ -15,7 +15,7 @@ class WhisperState: NSObject, ObservableObject, AVAudioRecorderDelegate {
     private var audioPlayer: AVAudioPlayer?
     
     private var modelUrl: URL? {
-        Bundle.main.url(forResource: "ggml-tiny.en", withExtension: "bin", subdirectory: "models")
+Bundle.main.url(forResource: "ggml-tiny.en", withExtension: "bin", subdirectory: "models")
     }
     
     private var sampleUrl: URL? {
@@ -55,6 +55,24 @@ class WhisperState: NSObject, ObservableObject, AVAudioRecorderDelegate {
         }
     }
     
+    func measureTime<T>(_ label:String, _ block:() throws -> T ) throws -> T{
+        let start = Date().timeIntervalSince1970
+        let ret = try block()
+        let end = Date().timeIntervalSince1970
+        let dt = end - start
+        print(" \(label) \(dt)s")
+        return ret
+    }
+    
+    func measureTime<T>(_ label:String, _ block:() async throws -> T ) async throws -> T{
+        let start = Date().timeIntervalSince1970
+        let ret = try await block()
+        let end = Date().timeIntervalSince1970
+        let dt = end - start
+        print(" \(label) \(dt)s")
+        return ret
+    }
+    
     private func transcribeAudio(_ url: URL) async {
         if (!canTranscribe) {
             return
@@ -66,11 +84,23 @@ class WhisperState: NSObject, ObservableObject, AVAudioRecorderDelegate {
         do {
             canTranscribe = false
             messageLog += "Reading wave samples...\n"
-            let data = try readAudioSamples(url)
-            messageLog += "Transcribing data...\n"
-            await whisperContext.fullTranscribe(samples: data)
-            let text = await whisperContext.getTranscription()
+            
+            
+            let data = try measureTime("read"){
+                try readAudioSamples(url)
+            }
+            
+            messageLog += "Transcribing data \(data.count/16000)s...\n"
+            
+            try await measureTime("transcribe"){
+                await whisperContext.fullTranscribe(samples: data)
+            }
+            
+            let text = try await measureTime("getTranscription"){
+                await whisperContext.getTranscription()
+            }
             messageLog += "Done: \(text)\n"
+            messageLog += ""
         } catch {
             print(error.localizedDescription)
             messageLog += "\(error.localizedDescription)\n"
