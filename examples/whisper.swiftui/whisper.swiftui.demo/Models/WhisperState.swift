@@ -15,11 +15,16 @@ class WhisperState: NSObject, ObservableObject, AVAudioRecorderDelegate {
     private var audioPlayer: AVAudioPlayer?
     
     private var modelUrl: URL? {
-Bundle.main.url(forResource: "ggml-tiny.en", withExtension: "bin", subdirectory: "models")
+//        Bundle.main.url(forResource: "ggml-tiny.en", withExtension: "bin", subdirectory: "models")
+        Bundle.main.url(forResource: "ggml-medium.en.bin", withExtension: nil, subdirectory: "models")
+
     }
     
     private var sampleUrl: URL? {
-        Bundle.main.url(forResource: "jfk", withExtension: "wav", subdirectory: "samples")
+//        Bundle.main.url(forResource: "jfk", withExtension: "wav", subdirectory: "samples")
+//        Bundle.main.url(forResource: "2023-12-07T043254Z", withExtension: "aac", subdirectory: "samples")
+        Bundle.main.url(forResource: "samples_jfk.wav", withExtension: nil, subdirectory: "samples")
+
     }
     
     private enum LoadError: Error {
@@ -112,7 +117,7 @@ Bundle.main.url(forResource: "ggml-tiny.en", withExtension: "bin", subdirectory:
     private func readAudioSamples(_ url: URL) throws -> [Float] {
         stopPlayback()
         try startPlayback(url)
-        return try decodeWaveFile(url)
+        return try decodeAudioFile(url)
     }
     
     func toggleRecord() async {
