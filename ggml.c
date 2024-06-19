@@ -20687,7 +20687,7 @@ int gguf_find_key(const struct gguf_context * ctx, const char * key) {
     const int n_kv = gguf_get_n_kv(ctx);
 
     for (int i = 0; i < n_kv; ++i) {
-        if (strcmp(key, gguf_get_key(ctx, i)) == 0) {
+        if (strcmp(key, whisper_gguf_get_key(ctx, i)) == 0) {
             keyfound = i;
             break;
         }
@@ -20696,7 +20696,7 @@ int gguf_find_key(const struct gguf_context * ctx, const char * key) {
     return keyfound;
 }
 
-const char * gguf_get_key(const struct gguf_context * ctx, int key_id) {
+const char * whisper_gguf_get_key(const struct gguf_context * ctx, int key_id) {
     GGML_ASSERT(key_id >= 0 && key_id < gguf_get_n_kv(ctx));
     return ctx->kv[key_id].key.data;
 }

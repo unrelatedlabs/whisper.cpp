@@ -2426,7 +2426,7 @@ namespace GGUFMeta {
 
             if (kt != GKV::gt) {
                 throw std::runtime_error(format("key %s has wrong type %s but expected type %s",
-                    gguf_get_key(ctx, k), gguf_type_name(kt), gguf_type_name(GKV::gt)));
+                    whisper_gguf_get_key(ctx, k), gguf_type_name(kt), gguf_type_name(GKV::gt)));
             }
             return GKV::getter(ctx, k);
         }
@@ -2655,7 +2655,7 @@ struct llama_model_loader {
 
             LLAMA_LOG_INFO("%s: Dumping metadata keys/values. Note: KV overrides do not apply in this output.\n", __func__);
             for (int i = 0; i < n_kv; i++) {
-                const char * name           = gguf_get_key(ctx_gguf, i);
+                const char * name           = whisper_gguf_get_key(ctx_gguf, i);
                 const enum gguf_type type   = gguf_get_kv_type(ctx_gguf, i);
                 const std::string type_name =
                     type == GGUF_TYPE_ARRAY
@@ -3061,7 +3061,7 @@ static void llm_load_hparams(
         if (type == GGUF_TYPE_ARRAY) {
             continue;
         }
-        const char * name = gguf_get_key(ctx, i);
+        const char * name = whisper_gguf_get_key(ctx, i);
         const std::string value = gguf_kv_to_str(ctx, i);
         model.gguf_kv.emplace(name, value);
     }
